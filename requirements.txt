@@ -1,6 +1,5 @@
-**requirements.txt**
-```text
 fastapi
 uvicorn
 transformers
 prometheus-client
+torch

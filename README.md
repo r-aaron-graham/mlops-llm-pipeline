@@ -1,17 +1,31 @@
 # MLOps LLM Pipeline
 
-## Overview
-An end-to-end demonstration of deploying a lightweight LLM inference service with CI/CD, monitoring, and a retraining workflow.
+A FastAPI text-generation example with a Prometheus request counter, a Docker
+image definition, and a retraining scaffold.
 
-## Prerequisites
-- Python 3.8+
-- Docker installed
-- GitHub repository with Actions enabled
-- Access to a cloud container registry or deployment target (e.g., Render)
+## Try the API without a model download
 
-## Setup
-1. **Install Dependencies**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
+```bash
+python -m pip install fastapi uvicorn prometheus-client
+LLM_FIXTURE_MODE=1 python -m uvicorn src.app:app --host 127.0.0.1 --port 8000
+```
+
+In a second terminal:
+
+```bash
+curl 'http://127.0.0.1:8000/generate?text=Hello'
+curl 'http://127.0.0.1:8000/metrics'
+```
+
+The first request returns `[{"generated_text":"Hello [fixture]"}]`. The
+metrics output includes `request_count_total`.
+
+## Run the GPT-2 adapter
+
+Install the full dependencies with `python -m pip install -r requirements.txt`,
+then start the server without `LLM_FIXTURE_MODE`. The first generation
+request loads GPT-2, which may require downloading model files.
+
+The Dockerfile installs the full model dependencies. The retraining script
+still needs a training dataset and data preprocessing before it can run.
+The deployment workflow also requires a configured Render environment.
