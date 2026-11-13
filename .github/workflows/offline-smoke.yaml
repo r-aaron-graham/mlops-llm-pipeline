@@ -1,0 +1,36 @@
+name: Offline API smoke test
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'requirements.txt'
+      - '.github/workflows/offline-smoke.yaml'
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      LLM_FIXTURE_MODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install fastapi prometheus-client httpx
+      - name: Verify fixture response and metrics
+        run: |
+          python - <<'PY'
+          import sys
+          from fastapi.testclient import TestClient
+          from src.app import app
+
+          with TestClient(app) as client:
+              response = client.get("/generate", params={"text": "Hello"})
+              assert response.status_code == 200
+              assert response.json() == [{"generated_text": "Hello [fixture]"}]
+              metrics = client.get("/metrics")
+              assert metrics.status_code == 200
+              assert "request_count_total 1.0" in metrics.text
+              assert "transformers" not in sys.modules
+          PY
