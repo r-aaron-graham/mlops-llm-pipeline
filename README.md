@@ -20,6 +20,18 @@ curl 'http://127.0.0.1:8000/metrics'
 The first request returns `[{"generated_text":"Hello [fixture]"}]`. The
 metrics output includes `request_count_total`.
 
+## Run the automated smoke test
+
+From the repository root:
+
+```bash
+python -m pip install fastapi prometheus-client httpx
+LLM_FIXTURE_MODE=1 python -m scripts.smoke_test
+```
+
+In PowerShell, set `$env:LLM_FIXTURE_MODE = "1"` before running the Python
+command. The same check runs in GitHub Actions on pull requests.
+
 ## Run the GPT-2 adapter
 
 Install the full dependencies with `python -m pip install -r requirements.txt`,
